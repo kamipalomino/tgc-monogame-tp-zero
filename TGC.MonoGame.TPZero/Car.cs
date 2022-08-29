@@ -9,7 +9,7 @@ namespace TGC.MonoGame.TP
         private Vector3 Position {get; set; }= Vector3.Zero;
         private Model CarModel { get; set; }
         private Effect Effect { get; set; }
-        private FollowCamera FollowCamera { get; set; }
+        private FollowCamera FollowCameraCar { get; set; }
         
         private float Timer {get; set; } =0f;
 
@@ -33,8 +33,16 @@ namespace TGC.MonoGame.TP
             Model = model;
             Effect= effect;
         }
-
-
+        public void acelero(GameTime gameTime){
+            var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Timer +=elapsedTime;
+                Position = Vector3.Lerp(A,B,MathF.Min(Timer *0.1f * 2f,1f));
+        }
+        public void desacelero(GameTime gameTime){
+            var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Timer +=elapsedTime;
+                Position = Vector3.Lerp(A,B,MathF.Min(Timer *0.1f / 2f,1f));
+        }
         public void Update(GameTime gameTime){
 
             var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -48,7 +56,8 @@ namespace TGC.MonoGame.TP
             //    Position += Vector3.Up * elapsedTime * 5f; 
 
             Position = Vector3.Lerp(A,B,MathF.Min(Timer *0.1f,1f));
-
+            
+            
 
 
 
