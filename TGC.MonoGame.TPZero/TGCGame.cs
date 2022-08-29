@@ -59,7 +59,7 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
 
-            // Creo una camaar para seguir a nuestro auto
+            // Creo una camara para seguir a nuestro auto
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             // Configuro la matriz de mundo del auto
@@ -78,6 +78,7 @@ namespace TGC.MonoGame.TP
             City = new CityScene(Content);
 
             // La carga de contenido debe ser realizada aca
+            Car = new Car(content: Content);
 
             base.LoadContent();
         }
@@ -117,6 +118,7 @@ namespace TGC.MonoGame.TP
 
             // El dibujo del auto debe ir aca
 
+            Car.Draw(gameTime,FollowCamera.View,FollowCamera.Projection);
             base.Draw(gameTime);
         }
 
