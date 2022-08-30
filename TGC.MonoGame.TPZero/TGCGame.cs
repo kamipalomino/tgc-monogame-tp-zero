@@ -25,8 +25,8 @@ namespace TGC.MonoGame.TP
         private Model CarModel { get; set; }
         private Matrix CarWorld { get; set; }
         private FollowCamera FollowCamera { get; set; }
-
-
+        public bool OnGround;
+ 
         /// <summary>
         ///     Constructor del juego
         /// </summary>
@@ -61,11 +61,12 @@ namespace TGC.MonoGame.TP
             Graphics.ApplyChanges();
 
             // Creo una camara para seguir a nuestro auto
+        
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             // Configuro la matriz de mundo del auto
             CarWorld = Matrix.Identity;
-
+            OnGround =true;
             base.Initialize();
         }
 
@@ -111,6 +112,18 @@ namespace TGC.MonoGame.TP
                 Automovil.RotacionA(gameTime);
             if (keyboardState.IsKeyDown(Keys.D))
                 Automovil.RotacionD(gameTime);
+            if (keyboardState.IsKeyDown(Keys.Space)||!OnGround){
+                if(OnGround){
+                    Automovil.Salto();
+                }else if(Automovil.Duracion < Automovil.Jump){
+                    Automovil.Salto();
+                    Automovil.Duracion+=1f;
+                }
+                OnGround=true;
+                Automovil.Duracion=1f;
+            }
+                
+
             // Actualizo la camara, enviandole la matriz de mundo del auto
             FollowCamera.Update(gameTime, CarWorld);
             Automovil.Update(gameTime);
