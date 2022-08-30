@@ -21,6 +21,7 @@ namespace TGC.MonoGame.TP
         
         private GraphicsDeviceManager Graphics { get; }
         private CityScene City { get; set; }
+        private Car Automovil {get; set; }
         private Model CarModel { get; set; }
         private Matrix CarWorld { get; set; }
         private FollowCamera FollowCamera { get; set; }
@@ -76,9 +77,9 @@ namespace TGC.MonoGame.TP
         {
             // Creo la escena de la ciudad
             City = new CityScene(Content);
-
+            Automovil = new Car(Content);
             // La carga de contenido debe ser realizada aca
-            Car = new Car(content: Content);
+        
 
             base.LoadContent();
         }
@@ -91,15 +92,28 @@ namespace TGC.MonoGame.TP
         {
             // Caputo el estado del teclado
             var keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.Escape))
+          //  var keyboardKey = Keyboard.Get
+            if (keyboardState.IsKeyDown(Keys.Q))
                 // Salgo del juego
                 Exit();
 
             // La logica debe ir aca
-
+            
+            /*
+            *! <kbd>w</kbd> y <kbd>s</kbd> para acelerar y desacelerar
+            *! <kbd>a</kbd> y <kbd>d</kbd> para girar el auto
+            */
+            if (keyboardState.IsKeyDown(Keys.W))
+                Automovil.Acelero(gameTime);
+            if (keyboardState.IsKeyDown(Keys.S))
+                Automovil.Desacelero(gameTime);
+            if (keyboardState.IsKeyDown(Keys.A))
+                Automovil.RotacionA(gameTime);
+            if (keyboardState.IsKeyDown(Keys.D))
+                Automovil.RotacionD(gameTime);
             // Actualizo la camara, enviandole la matriz de mundo del auto
             FollowCamera.Update(gameTime, CarWorld);
-
+            Automovil.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -118,7 +132,7 @@ namespace TGC.MonoGame.TP
 
             // El dibujo del auto debe ir aca
 
-            Car.Draw(gameTime,FollowCamera.View,FollowCamera.Projection);
+            Automovil.Draw(gameTime,FollowCamera.View,FollowCamera.Projection);
             base.Draw(gameTime);
         }
 
