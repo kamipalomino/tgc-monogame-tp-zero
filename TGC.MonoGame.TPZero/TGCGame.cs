@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -21,12 +20,21 @@ namespace TGC.MonoGame.TP
         
         private GraphicsDeviceManager Graphics { get; }
         private CityScene City { get; set; }
-        private Car Automovil {get; set; }
+        
         private Model CarModel { get; set; }
         private Matrix CarWorld { get; set; }
         private FollowCamera FollowCamera { get; set; }
-        public bool OnGround;
- 
+        public bool OnGround {get; set; }
+        private float Timer {get; set; } =0f;
+        public float Duracion {get; set; }= 1f;
+        private float Rotation {get; set; }= 0f;
+        public float Jump = 40f;
+        private float Giro = 45f;
+        /** Matrices y vectores   */
+        private Vector3 Position {get; set; }=Vector3.Zero;
+        private float Velocity { get; set; } = 1f;
+        private Vector3 Acceleration { get; set; } = Vector3.Down * 350f;
+
         /// <summary>
         ///     Constructor del juego
         /// </summary>
@@ -78,7 +86,8 @@ namespace TGC.MonoGame.TP
         {
             // Creo la escena de la ciudad
             City = new CityScene(Content);
-            Automovil = new Car(Content);
+            CarModel  = Content.Load<Model>(ContentFolder3D + "scene/car");
+            
             // La carga de contenido debe ser realizada aca
         
 
@@ -99,34 +108,40 @@ namespace TGC.MonoGame.TP
                 Exit();
 
             // La logica debe ir aca
-            
+            var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Position += CarWorld.Forward * elapsedTime * Velocity;
             /*
             *! <kbd>w</kbd> y <kbd>s</kbd> para acelerar y desacelerar
             *! <kbd>a</kbd> y <kbd>d</kbd> para girar el auto
             */
             if (keyboardState.IsKeyDown(Keys.W))
-                Automovil.Acelero(gameTime);
+                Acelero(elapsedTime);
             if (keyboardState.IsKeyDown(Keys.S))
-                Automovil.Desacelero(gameTime);
-            if (keyboardState.IsKeyDown(Keys.A))
-                Automovil.RotacionA(gameTime);
-            if (keyboardState.IsKeyDown(Keys.D))
-                Automovil.RotacionD(gameTime);
-            if (keyboardState.IsKeyDown(Keys.Space)||!OnGround){
-                if(OnGround){
-                    Automovil.Salto();
-                }else if(Automovil.Duracion < Automovil.Jump){
-                    Automovil.Salto();
-                    Automovil.Duracion+=1f;
+                Desacelero(elapsedTime);
+            if (keyboardState.IsKeyDown(Keys.A) && OnGround)
+                RotacionA(elapsedTime);
+            if (keyboardState.IsKeyDown(Keys.D) && OnGround)
+                RotacionD(elapsedTime);
+            if (keyboardState.IsKeyDown(Keys.Space) && OnGround){
+               Salto();
+               /*  if(OnGround){
+                    Salto();
+                }else if(Duracion < Automovil.Jump){
+                    Salto();
+                    Duracion+=1f;
                 }
                 OnGround=true;
-                Automovil.Duracion=1f;
-            }
-                
+                Duracion=1f;
+ */            }
+                 CarWorld =
+                    Matrix.CreateRotationY(Rotation)
+                //  Matrix.CreateFromQuaternion(quaternion)
+                    * Matrix.CreateTranslation(Position);
+
 
             // Actualizo la camara, enviandole la matriz de mundo del auto
             FollowCamera.Update(gameTime, CarWorld);
-            Automovil.Update(gameTime);
+  
             base.Update(gameTime);
         }
 
@@ -144,8 +159,8 @@ namespace TGC.MonoGame.TP
             City.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
 
             // El dibujo del auto debe ir aca
-
-            Automovil.Draw(gameTime,FollowCamera.View,FollowCamera.Projection);
+            CarModel.Draw(CarWorld,FollowCamera.View,FollowCamera.Projection);
+            
             base.Draw(gameTime);
         }
 
@@ -159,5 +174,29 @@ namespace TGC.MonoGame.TP
 
             base.UnloadContent();
         }
+        public void Desacelero(float elapsedTime){
+            Timer -=elapsedTime;
+            Velocity -=Timer*0.1f/3f;
+                //Position += Vector3.Lerp(A,B,Velocity);
+        }
+        public void Acelero(float elapsedTime){
+            
+            Timer +=elapsedTime;
+            Velocity +=Timer*0.1f*2f;
+               // Position += Vector3.Lerp(A,B,Velocity);
+        }
+        public void RotacionD(float elapsedTime){
+            Rotation -=elapsedTime;
+         //   Rotation-=Giro;
+        }
+        public void RotacionA(float elapsedTime){
+            Rotation += elapsedTime;
+        }
+        public void Salto(){
+                    Position += CarWorld.Up *Jump;
+                    OnGround =false;
+                
+        }
+        
     }
 }
